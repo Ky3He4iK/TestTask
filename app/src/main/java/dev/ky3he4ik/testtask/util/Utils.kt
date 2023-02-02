@@ -1,13 +1,17 @@
 package dev.ky3he4ik.testtask.util
 
 import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Build
 import android.telephony.TelephonyManager
 import dev.ky3he4ik.testtask.BuildConfig
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 object Utils {
-    fun checkIsEmu(): Boolean {
+    private fun checkIsEmu(): Boolean {
         if (BuildConfig.DEBUG)
             return false // when developer use this build on emulator
         val phoneModel = Build.MODEL
@@ -37,11 +41,7 @@ object Utils {
         return "google_sdk" == buildProduct
     }
 
-    fun isShowDummy(context: Context, firebaseUrl: String?): Boolean {
-        return firebaseUrl.isNullOrBlank() || checkIsEmu() || isSimAbsent(context)
-    }
-
-    fun isSimAbsent(context: Context): Boolean {
+    private fun isSimAbsent(context: Context): Boolean {
         // add all sim states that can be "no SIM"
         val telephonyManager =
             context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -52,5 +52,31 @@ object Utils {
         if (Build.VERSION.SDK_INT >= 26)
             simAbsentStates.add(TelephonyManager.SIM_STATE_PERM_DISABLED)
         return simAbsentStates.contains(telephonyManager.simState)
+    }
+
+    fun isShowDummy(context: Context, firebaseUrl: String?): Boolean {
+        return firebaseUrl.isNullOrBlank() || checkIsEmu() || isSimAbsent(context)
+    }
+
+    fun hasInternet(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+                ?: return false
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            val link = connectivityManager.getLinkProperties(
+                connectivityManager.activeNetwork ?: return false
+            ) ?: return false
+            return true
+        } else {
+            return connectivityManager.activeNetworkInfo?.isConnected ?: false
+        }
+    }
+
+    fun urlEncode(url: String): String = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+
+    fun urlDecode(encodedUrl: String?): String? {
+        encodedUrl ?: return null
+        return URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8.toString())
     }
 }
