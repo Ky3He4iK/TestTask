@@ -52,6 +52,7 @@ object Utils {
     }
 
     fun isTestScenario(context: Context): Boolean {
+        return false
         return checkIsEmu() || isSimAbsent(context)
     }
 

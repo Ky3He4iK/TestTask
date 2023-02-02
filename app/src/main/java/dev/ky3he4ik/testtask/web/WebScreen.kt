@@ -3,13 +3,14 @@ package dev.ky3he4ik.testtask.web
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -62,24 +63,13 @@ private fun WebScreen(viewModel: WebViewModel) {
             return@Surface
         }
         val context = LocalContext.current
-        val webView = rememberSaveable(LocalContext.current, saver = getWebViewSaver(context)) {
-            WebView(context).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-
-                webViewClient = WebViewClient()
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-
-                loadUrl(siteUrl)
+        val webView =
+            rememberSaveable(LocalContext.current, stateSaver = getWebViewSaver(context)) {
+                mutableStateOf(initWebView(context, null, siteUrl))
             }
 
-        }
-
         AndroidView(factory = {
-            webView
+            webView.value
         }, update = {
             it.loadUrl(siteUrl)
         })
@@ -91,19 +81,30 @@ fun getWebViewSaver(context: Context) = run {
         val bundle = Bundle()
         it.saveState(bundle)
         bundle
-    },
-        restore = {
-            WebView(context).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-
-                webViewClient = WebViewClient()
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-
-                restoreState(it)
-            }
-        })
+    }, restore = {
+        initWebView(context, it, "")
+    })
 }
+
+
+private fun initWebView(context: Context, savedInstanceState: Bundle?, url: String) =
+    WebView(context).apply {
+        webViewClient = WebViewClient()
+        settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            javaScriptCanOpenWindowsAutomatically = true
+            useWideViewPort = true
+            domStorageEnabled = true
+            databaseEnabled = true
+            setSupportZoom(false)
+            allowFileAccess = true
+            allowContentAccess = true
+            loadWithOverviewMode = true
+        }
+        CookieManager.getInstance().setAcceptCookie(true)
+        if (savedInstanceState != null)
+            restoreState(savedInstanceState)
+        else
+            loadUrl(url)
+    }

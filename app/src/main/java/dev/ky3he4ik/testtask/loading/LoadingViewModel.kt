@@ -1,6 +1,7 @@
 package dev.ky3he4ik.testtask.loading
 
 import android.app.Application
+import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,6 +45,7 @@ class LoadingViewModel @Inject constructor(
                     remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val firebaseUrl = remoteConfig.getString(URL_KEY_FIREBASE)
+                            Log.d("Test/Loading/Url", firebaseUrl)
                             if (firebaseUrl.isBlank() || Utils.isTestScenario(context)) {
                                 navigateToRoute(DummyRoute.route)
                                 return@addOnCompleteListener
@@ -51,6 +53,7 @@ class LoadingViewModel @Inject constructor(
                             preferences?.edit(commit = true) {
                                 putString(URL_KEY_PREFS, firebaseUrl)
                             }
+
                             navigateToRoute(WebRoute.get(firebaseUrl))
                             return@addOnCompleteListener
 
