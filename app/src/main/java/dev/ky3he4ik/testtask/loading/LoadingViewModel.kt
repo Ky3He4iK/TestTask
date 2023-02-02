@@ -44,29 +44,33 @@ class LoadingViewModel @Inject constructor(
                     remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val firebaseUrl = remoteConfig.getString(URL_KEY_FIREBASE)
-                            if (Utils.isShowDummy(context, firebaseUrl)) {
+                            if (firebaseUrl.isBlank() || Utils.isTestScenario(context)) {
                                 navigateToRoute(DummyRoute.route)
-                            } else {
-                                preferences?.edit(commit = true) {
-                                    putString(URL_KEY_PREFS, firebaseUrl)
-                                }
-                                navigateToRoute(WebRoute.get(firebaseUrl))
+                                return@addOnCompleteListener
                             }
-                        } else {
-                            navigateToRoute(ErrorRoute.get(
-                                task.exception?.message ?: "Can't get url"
-                            ))
+                            preferences?.edit(commit = true) {
+                                putString(URL_KEY_PREFS, firebaseUrl)
+                            }
+                            navigateToRoute(WebRoute.get(firebaseUrl))
+                            return@addOnCompleteListener
+
                         }
+                        navigateToRoute(
+                            ErrorRoute.get(
+                                task.exception?.message ?: "Can't get url"
+                            )
+                        )
                     }
                 } catch (e: FirebaseRemoteConfigException) {
+                    e.printStackTrace()
                     navigateToRoute(ErrorRoute.get(e.message ?: "Unknown error"))
                 }
-            } else {
-                if (Utils.hasInternet(context)) {
-                    navigateToRoute(WebRoute.get(storedUrl))
-                } else
-                    navigateToRoute(ErrorRoute.get("No internet"))
+                return@launch
             }
+            if (Utils.hasInternet(context)) {
+                navigateToRoute(WebRoute.get(storedUrl))
+            } else
+                navigateToRoute(ErrorRoute.get("No internet"))
         }
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import android.telephony.TelephonyManager
-import dev.ky3he4ik.testtask.BuildConfig
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -12,8 +11,6 @@ import java.util.*
 
 object Utils {
     private fun checkIsEmu(): Boolean {
-        if (BuildConfig.DEBUG)
-            return false // when developer use this build on emulator
         val phoneModel = Build.MODEL
         val buildProduct = Build.PRODUCT
         val buildHardware = Build.HARDWARE
@@ -54,8 +51,8 @@ object Utils {
         return simAbsentStates.contains(telephonyManager.simState)
     }
 
-    fun isShowDummy(context: Context, firebaseUrl: String?): Boolean {
-        return firebaseUrl.isNullOrBlank() || checkIsEmu() || isSimAbsent(context)
+    fun isTestScenario(context: Context): Boolean {
+        return checkIsEmu() || isSimAbsent(context)
     }
 
     fun hasInternet(context: Context): Boolean {
@@ -64,7 +61,7 @@ object Utils {
                 ?: return false
 
         if (Build.VERSION.SDK_INT >= 23) {
-            val link = connectivityManager.getLinkProperties(
+            connectivityManager.getLinkProperties(
                 connectivityManager.activeNetwork ?: return false
             ) ?: return false
             return true

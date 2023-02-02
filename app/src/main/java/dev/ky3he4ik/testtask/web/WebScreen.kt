@@ -1,6 +1,8 @@
 package dev.ky3he4ik.testtask.web
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Bundle
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -8,7 +10,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -51,29 +56,54 @@ private fun WebScreen(viewModel: WebViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
-
-
-        AndroidView(factory = {
-            WebView(it).apply {
+        val siteUrl = viewModel.state
+        if (siteUrl == null) {
+            viewModel.navigateToRoute(ErrorRoute.get("No url passed"))
+            return@Surface
+        }
+        val context = LocalContext.current
+        val webView = rememberSaveable(LocalContext.current, saver = getWebViewSaver(context)) {
+            WebView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
+
                 webViewClient = WebViewClient()
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
-//                    settings.
 
-                val siteUrl = viewModel.state
-                if (siteUrl == null) {
-                    viewModel.navigateToRoute(ErrorRoute.get("No url passed"))
-                } else
-                    loadUrl(siteUrl)
+                loadUrl(siteUrl)
             }
+
         }
-//                , update = {
-//                it.loadUrl(url)
-//            }
-        )
+
+        AndroidView(factory = {
+            webView
+        }, update = {
+            it.loadUrl(siteUrl)
+        })
     }
+}
+
+fun getWebViewSaver(context: Context) = run {
+    Saver<WebView, Bundle>(save = {
+        val bundle = Bundle()
+        it.saveState(bundle)
+        bundle
+    },
+        restore = {
+            WebView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+
+                webViewClient = WebViewClient()
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+
+                restoreState(it)
+            }
+        })
 }
