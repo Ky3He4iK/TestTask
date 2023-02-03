@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import dev.ky3he4ik.testtask.dummy.DummyRoute
+import dev.ky3he4ik.testtask.workouts.WorkoutsRoute
 import dev.ky3he4ik.testtask.error.ErrorRoute
 import dev.ky3he4ik.testtask.loading.LoadingRoute
 import dev.ky3he4ik.testtask.web.WebRoute
@@ -20,7 +20,7 @@ fun NavigationComponent(navHostController: NavHostController, paddingValues: Pad
     ) {
         LoadingRoute.composable(this, navHostController)
         ErrorRoute.composable(this, navHostController)
-        DummyRoute.composable(this, navHostController)
+        WorkoutsRoute.composable(this, navHostController)
         WebRoute.composable(this, navHostController)
     }
 }

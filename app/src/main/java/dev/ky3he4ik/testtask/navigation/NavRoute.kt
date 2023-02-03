@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -54,6 +53,10 @@ interface NavRoute<T : RouteNavigator> {
                 onNavigated(navigationState)
             }
             is NavigationState.Idle -> {
+            }
+            is NavigationState.NavigateBack -> {
+                navHostController.popBackStack()
+                onNavigated(navigationState)
             }
         }
     }

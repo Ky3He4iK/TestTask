@@ -12,7 +12,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ky3he4ik.testtask.dummy.DummyRoute
+import dev.ky3he4ik.testtask.workouts.WorkoutsRoute
 import dev.ky3he4ik.testtask.error.ErrorRoute
 import dev.ky3he4ik.testtask.navigation.RouteNavigator
 import dev.ky3he4ik.testtask.util.Utils
@@ -47,7 +47,7 @@ class LoadingViewModel @Inject constructor(
                             val firebaseUrl = remoteConfig.getString(URL_KEY_FIREBASE)
                             Log.d("Test/Loading/Url", firebaseUrl)
                             if (firebaseUrl.isBlank() || Utils.isTestScenario(context)) {
-                                navigateToRoute(DummyRoute.route)
+                                navigateToRoute(WorkoutsRoute.route)
                                 return@addOnCompleteListener
                             }
                             preferences?.edit(commit = true) {

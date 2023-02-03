@@ -13,10 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.ExperimentalUnitApi
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NamedNavArgument
@@ -46,7 +43,6 @@ object ErrorRoute : NavRoute<ErrorViewModel> {
         Utils.urlDecode(savedStateHandle.get<String>(KEY_ERROR_MESSAGE))
 }
 
-@OptIn(ExperimentalUnitApi::class)
 @Composable
 private fun ErrorScreen(viewModel: ErrorViewModel) {
     Surface(
@@ -63,7 +59,7 @@ private fun ErrorScreen(viewModel: ErrorViewModel) {
             )
             Text(
                 text = "Error: ${viewModel.state ?: "Unknown error"}",
-                fontSize = TextUnit(32f, TextUnitType.Sp),
+                fontSize = 32.sp,
                 overflow = TextOverflow.Visible, textAlign = TextAlign.Center
             )
         }

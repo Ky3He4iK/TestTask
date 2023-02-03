@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 interface RouteNavigator {
     fun onNavigated(state: NavigationState)
     fun navigateToRoute(route: String)
+    fun navigateBack()
     val navigationState: StateFlow<NavigationState>
 }
 
@@ -23,6 +24,8 @@ class RouteNavigatorImpl : RouteNavigator {
     }
 
     override fun navigateToRoute(route: String) = navigate(NavigationState.NavigateToRoute(route))
+
+    override fun navigateBack() = navigate(NavigationState.NavigateBack)
 
     @VisibleForTesting
     fun navigate(state: NavigationState) {

@@ -49,10 +49,6 @@ object WebRoute : NavRoute<WebViewModel> {
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun WebScreen(viewModel: WebViewModel) {
-    BackHandler(true) {
-        // disable back button
-    }
-
     // A surface container using the 'background' color from the theme
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -67,6 +63,10 @@ private fun WebScreen(viewModel: WebViewModel) {
             rememberSaveable(LocalContext.current, stateSaver = getWebViewSaver(context)) {
                 mutableStateOf(initWebView(context, null, siteUrl))
             }
+
+        BackHandler(true) {
+            webView.value.goBack()
+        }
 
         AndroidView(factory = {
             webView.value
